@@ -37,19 +37,34 @@ def shopping_cart():
     # add list of melons added to cart
    
     list_of_melons = session['ourcart']
-    melon_name_price = {}
-    
+       
     # for melon_id in list_of_melons: 
     #     melon = model.get_melon_by_id(melon_id)
     #     melon_name_list.append(melon.common_name)
     #     melon_price_list.append(melon.price) 
+    melon_qty = {}
+    for melon_id in list_of_melons:
+        if melon_qty.get(melon_id):
+            melon_qty[melon_id] += 1
+        else:
+            melon_qty[melon_id] = 1
+    print melon_qty
 
-    for melonid in list_of_melons:
-        melon = model.get_melon_by_id(melonid)
-        melon_name_price[melon.common_name] = melon.price
+    melon_objects = {}
+    for melon_id, qty in melon_qty.items():
+        melon_obj = model.get_melon_by_id(melon_id)
+        melon_objects[melon_obj] = qty
+
+    cart_total = 0;
+    for melon, qty in melon_objects.items(): 
+        cart_total += melon.price * qty
+
+
+    print melon_objects
 
     return render_template("cart.html",
-            melon_name_price = melon_name_price)
+            melons = melon_objects,
+            total = cart_total)
     
 @app.route("/add_to_cart/<int:id>")
 def add_to_cart(id):
@@ -60,27 +75,41 @@ def add_to_cart(id):
     shopping cart page, while displaying the message
     "Successfully added to cart" """
    
-    
     if 'ourcart' in session:
         session['ourcart'].append(id)
     else:
         session['ourcart'] = [id]    
 
     print session
-    print "Successfully added to cart"
+    flash("Successfully added to cart")
     return redirect(url_for("shopping_cart"))    # function name
  
 @app.route("/login", methods=["GET"])
 def show_login():
     return render_template("login.html")
 
+@app.route("/logout", methods=["GET"])
+def show_logout():
+    del session["givenname"]
+    return redirect("/melons")
 
 @app.route("/login", methods=["POST"])
 def process_login():
     """TODO: Receive the user's login credentials located in the 'request.form'
     dictionary, look up the user, and store them in the session."""
-    return "Oops! This needs to be implemented"
+    
+    if request.method == "POST": 
+        input_email = request.form['email']
+        print "input email is %r" % input_email
 
+        customer = model.get_customer_by_email(input_email)
+   
+        if input_email == customer.email:
+            session["givenname"] = customer.givenname
+        print "********************************************"
+        print session 
+
+    return redirect(url_for("list_melons"))
 
 @app.route("/checkout")
 def checkout():
