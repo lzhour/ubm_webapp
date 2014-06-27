@@ -14,7 +14,7 @@ def index():
 
 @app.route("/melons")
 def list_melons():
-    """This is the big page showing all the melons ubermelon has to offer"""
+    """This is the big page showing all the melons ubermelon has to offer (product page)."""
     melons = model.get_melons()
     return render_template("all_melons.html",
                            melon_list = melons)
@@ -30,13 +30,9 @@ def show_melon(id):
 
 @app.route("/cart")
 def shopping_cart():
-    """TODO: Display the contents of the shopping cart. The shopping cart is a
-    list held in the session that contains all the melons to be added. Check
-    accompanying screenshots for details."""
-    # create a session (if not already existing)
-    # add list of melons added to cart
+    """Shopping cart page: displays the contents of the shopping cart with a list of melons, quantities, prices, and total prices held in this session."""
    
-    list_of_melons = session['ourcart']
+    list_of_melons = session.get('ourcart', [])
        
     # for melon_id in list_of_melons: 
     #     melon = model.get_melon_by_id(melon_id)
@@ -68,12 +64,9 @@ def shopping_cart():
     
 @app.route("/add_to_cart/<int:id>")
 def add_to_cart(id):
-    """TODO: Finish shopping cart functionality using session variables to hold
-    cart list.
-    
-    Intended behavior: when a melon is added to a cart, redirect them to the
-    shopping cart page, while displaying the message
-    "Successfully added to cart" """
+    """When a melon is added to a cart, redirect to the
+    shopping cart page, and display the message
+    "Successfully added to cart"""
    
     if 'ourcart' in session:
         session['ourcart'].append(id)
@@ -90,13 +83,14 @@ def show_login():
 
 @app.route("/logout", methods=["GET"])
 def show_logout():
+    """When user/customer clicks on 'log out', the session (in this case the shopping cart contents), will be refreshed/deleted. Then, redirected to the main melons product page."""
     del session["givenname"]
+    del session['ourcart']
     return redirect("/melons")
 
 @app.route("/login", methods=["POST"])
 def process_login():
-    """TODO: Receive the user's login credentials located in the 'request.form'
-    dictionary, look up the user, and store them in the session."""
+    """See if email associated with the log in is in the Customer DB, then store them in a session."""
     
     if request.method == "POST": 
         input_email = request.form['email']
@@ -104,8 +98,12 @@ def process_login():
 
         customer = model.get_customer_by_email(input_email)
    
-        if input_email == customer.email:
+        if customer is not None:
             session["givenname"] = customer.givenname
+        else:
+            flash("Error, customer doesn't exist")
+            return redirect(url_for("show_login"))
+            
         print "********************************************"
         print session 
 

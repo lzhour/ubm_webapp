@@ -12,9 +12,11 @@
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
                         <li><a href="/cart"><img class="melon-cart" src="/static/img/watermelon.png"> My Melon Cart</a></li>
-                        {% if session.get("givenname") %}
+                            {% if session.get("givenname") %}
+                            <li><a href="#">{{session['givenname']}}</a></li>
                             <li><a href="/logout">Log Out</a></li>
-                            <li class="welcome">{{ session["givenname"] }}</li>
+
+                            <!-- <li class="welcome">{{ session["givenname"] }}</li> -->
                         {% else %}
                             <li><a href="/login">Log In</a></li>
                         {% endif %}    

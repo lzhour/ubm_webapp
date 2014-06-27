@@ -20,10 +20,12 @@ div.melon-summary {
     padding-left: 10px;
     padding-bottom: 20px;
 }
+
 .welcome {
     color: #999;
-    padding: 15px 0; /* right and left is 0px, top and bottom is 15px  */
+    padding: 15px 0; /* top and bottom is 15px, right and left is 0px */
 }
+
 li.warning {
     color: red;
 }
